@@ -1,0 +1,45 @@
+parameters:
+
+    app.path.images: /uploads/images
+
+services:
+    
+    _defaults:
+        autowire: true      
+        autoconfigure: true 
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    # Normalizer
+    App\Normalizer\ProductNormalizer:
+        arguments:
+            $repo: '@App\Repository\CategoryRepository'
+            $normalizer: '@serializer.normalizer.object'
+
+    # Events
+    App\Events\JwtCreatedListener:
+        tags:
+        - {
+            name: kernel.event_listener,
+            event: lexik_jwt_authentication.on_authentication_success,
+            method: onAuthenticationSuccessResponse,
+           }
+
+    App\Events\PasswordSubscriber:
+        arguments:
+            $passwordHasher: '@Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface'
+            $environment: '%env(APP_ENV)%'
+        tags:
+            - { name: doctrine.event_listener, event: prePersist }
+            - { name: doctrine.event_listener, event: preUpdate }
+
+    App\Events\ContactSubscriber:
+        arguments:
+            $requestStack: '@request_stack'
+        tags:
+            - { name: doctrine.event_listener, event: postPersist }

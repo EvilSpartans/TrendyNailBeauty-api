@@ -1,0 +1,24 @@
+version: '3.4'
+
+services:
+
+  # Mail
+  mail:
+    image: maildev/maildev
+    container_name: Maildev
+    ports:
+      - "1080:1080"
+      - "1025:1025"
+    environment:
+      MAILDEV_SMTP_PORT: 1025
+      MAILDEV_WEB_PORT: 1080
+
+  # Postman
+  postman:
+    image: postman-image
+    ports:
+      - "6060:80"
+
+volumes:
+  mercure_data:
+  mercure_config:
