@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Product;
 use OpenApi\Attributes as OA;
+use App\Service\ProductService;
 use App\Repository\ProductRepository;
 use App\Repository\CategoryRepository;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -16,7 +17,6 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 #[OA\Tag(name: 'Product')]
-#[IsGranted('ROLE_USER')]
 class ProductController extends AbstractController
 {
     public function __construct(
@@ -32,6 +32,42 @@ class ProductController extends AbstractController
      *
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
+    #[OA\Parameter(
+        name: "name",
+        in: "query",
+        description: "Filter by name",
+        schema: new OA\Schema(type: "text")
+    )]
+    #[OA\Parameter(
+        name: "category",
+        in: "query",
+        description: "Filter by category name",
+        schema: new OA\Schema(type: "text")
+    )]
+    #[OA\Parameter(
+        name: "onSale",
+        in: "query",
+        description: "Filter by onSale",
+        schema: new OA\Schema(type: "boolean")
+    )]
+    #[OA\Parameter(
+        name: "minPrice",
+        in: "query",
+        description: "Filter by minPrice",
+        schema: new OA\Schema(type: "float")
+    )]
+    #[OA\Parameter(
+        name: "maxPrice",
+        in: "query",
+        description: "Filter by maxPrice",
+        schema: new OA\Schema(type: "float")
+    )]
+    #[OA\Parameter(
+        name: "sortBy",
+        in: "query",
+        description: "Order by price (price_asc)",
+        schema: new OA\Schema(type: "text")
+    )]
     #[OA\Response(
         response: 200,
         description: 'Successful response',
@@ -41,23 +77,31 @@ class ProductController extends AbstractController
         )
     )]
     #[Route('/api/products', name: 'app_product_index', methods: ['GET'])]
-    public function index(): \Symfony\Component\HttpFoundation\JsonResponse
+    public function index(Request $request, ProductService $service): \Symfony\Component\HttpFoundation\JsonResponse
     {
-        return $this->json([$this->repo->findAll()]);
+        $response = $service->getFilteredProducts($request);
+
+        if ($response instanceof \Symfony\Component\HttpFoundation\JsonResponse) {
+            return $response;
+        }
+
+        return $this->json($response, \Symfony\Component\HttpFoundation\JsonResponse::HTTP_OK);
     }
 
     /**
      * Show Object
      */
-    #[OA\Response(
-        response: 200,
-        description: 'Successful response',
-        content: new Model(type: Product::class))
+    #[
+        OA\Response(
+            response: 200,
+            description: 'Successful response',
+            content: new Model(type: Product::class)
+        )
     ]
     #[Route('/api/product/{id}', name: 'app_product_show', methods: ['GET'])]
     public function show(Product $product): \Symfony\Component\HttpFoundation\JsonResponse
     {
-        return $this->json([$product]);
+        return $this->json($product);
     }
 
     /**
@@ -66,6 +110,7 @@ class ProductController extends AbstractController
      * @param Product $product
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
+    #[IsGranted('ROLE_ADMIN')]
     #[OA\RequestBody(
         content: new OA\JsonContent(
             type: 'object',
@@ -76,10 +121,12 @@ class ProductController extends AbstractController
             ],
         )
     )]
-    #[OA\Response(
-        response: 201,
-        description: 'Successful created',
-        content: new Model(type: Product::class))
+    #[
+        OA\Response(
+            response: 201,
+            description: 'Successful created',
+            content: new Model(type: Product::class)
+        )
     ]
     #[Route('/api/product/create', name: 'app_product_create', methods: ['POST'])]
     public function create(Request $request): \Symfony\Component\HttpFoundation\JsonResponse
@@ -91,7 +138,7 @@ class ProductController extends AbstractController
         if (count($errors) > 0) {
             return $this->json($errors, 422);
         }
-        
+
         $this->repo->save($product, true);
         return $this->json($product, 201);
     }
@@ -99,6 +146,7 @@ class ProductController extends AbstractController
     /**
      * Update Object
      */
+    #[IsGranted('ROLE_ADMIN')]
     #[OA\RequestBody(
         content: new OA\JsonContent(
             type: 'object',
@@ -109,10 +157,12 @@ class ProductController extends AbstractController
             ],
         )
     )]
-    #[OA\Response(
-        response: 201,
-        description: 'Successful updated',
-        content: new Model(type: Product::class))
+    #[
+        OA\Response(
+            response: 201,
+            description: 'Successful updated',
+            content: new Model(type: Product::class)
+        )
     ]
     #[Route('/api/product/{id}', name: 'app_product_update', methods: ['PUT'])]
     public function update(Product $product, Request $request): \Symfony\Component\HttpFoundation\JsonResponse
@@ -125,7 +175,7 @@ class ProductController extends AbstractController
         if (count($errors) > 0) {
             return $this->json($errors, 422);
         }
-        
+
         $this->repo->save($product, true);
         return $this->json($product);
     }
@@ -133,6 +183,7 @@ class ProductController extends AbstractController
     /**
      * Upload image
      */
+    #[IsGranted('ROLE_ADMIN')]
     #[OA\RequestBody(
         content: [
             new OA\MediaType(
@@ -146,10 +197,12 @@ class ProductController extends AbstractController
             ),
         ]
     )]
-    #[OA\Response(
-        response: 201,
-        description: 'Successful uploaded',
-        content: new Model(type: Product::class))
+    #[
+        OA\Response(
+            response: 201,
+            description: 'Successful uploaded',
+            content: new Model(type: Product::class)
+        )
     ]
     #[Route(path: '/api/product/{id}/upload', name: 'app_product_upload', methods: ['POST'])]
     public function upload(Product $product, Request $request): \Symfony\Component\HttpFoundation\JsonResponse
@@ -169,6 +222,7 @@ class ProductController extends AbstractController
     /**
      * Delete Object
      */
+    #[IsGranted('ROLE_ADMIN')]
     #[OA\Response(
         response: 204,
         description: 'Successful deleted',

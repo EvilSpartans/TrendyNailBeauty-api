@@ -39,28 +39,51 @@ class ProductRepository extends ServiceEntityRepository
         }
     }
 
-//    /**
-//     * @return Product[] Returns an array of Product objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('p')
-//            ->andWhere('p.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('p.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    public function findByFilters(
+        $category = null,
+        $name = null,
+        $onSale = null,
+        $minPrice = null,
+        $maxPrice = null,
+        $sortBy = null
+    ) {
+        $queryBuilder = $this->createQueryBuilder('p')
+            ->leftJoin('p.category', 'c')
+            ->addSelect('c');
 
-//    public function findOneBySomeField($value): ?Product
-//    {
-//        return $this->createQueryBuilder('p')
-//            ->andWhere('p.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+        if ($category) {
+            $queryBuilder->andWhere('c.name = :category')
+                ->setParameter('category', $category);
+        }
+
+        if ($name) {
+            $queryBuilder->andWhere('p.name LIKE :name')
+                ->setParameter('name', '%' . $name . '%');
+        }
+
+        if ($onSale) {
+            $queryBuilder->andWhere('p.onSale = :onSale')
+                ->setParameter('onSale', $onSale);
+        }
+
+        if ($minPrice) {
+            $queryBuilder->andWhere('p.price >= :minPrice')
+                ->setParameter('minPrice', $minPrice);
+        }
+
+        if ($maxPrice) {
+            $queryBuilder->andWhere('p.price <= :maxPrice')
+                ->setParameter('maxPrice', $maxPrice);
+        }
+
+        if ($sortBy) {
+            if ($sortBy === 'price_asc') {
+                $queryBuilder->orderBy('p.price', 'ASC');
+            } elseif ($sortBy === 'price_desc') {
+                $queryBuilder->orderBy('p.price', 'DESC');
+            }
+        }
+
+        return $queryBuilder->getQuery()->getResult();
+    }
 }
