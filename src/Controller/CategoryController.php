@@ -65,7 +65,7 @@ class CategoryController extends AbstractController
     public function index(Request $request, CategoryService $service): \Symfony\Component\HttpFoundation\JsonResponse
     {
         $responseData = $service->getFilteredCategories($request);
-        return $this->json($responseData->getData(), $responseData->getStatus());
+        return $this->json($responseData->getData()['categories'], $responseData->getStatus());
     }
 
     /**
