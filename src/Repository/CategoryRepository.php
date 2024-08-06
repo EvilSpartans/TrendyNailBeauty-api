@@ -39,28 +39,43 @@ class CategoryRepository extends ServiceEntityRepository
         }
     }
 
-//    /**
-//     * @return Category[] Returns an array of Category objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('c')
-//            ->andWhere('c.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('c.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    public function findByFilters(
+        $name = null,
+        $mostProducts = null,
+        $mostOnSale = null,
+        $outOfStock = null
+    ) {
 
-//    public function findOneBySomeField($value): ?Category
-//    {
-//        return $this->createQueryBuilder('c')
-//            ->andWhere('c.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+        if (!$name && !$mostProducts && !$mostOnSale && !$outOfStock) {
+            return $this->findAll();
+        }
+        
+        $queryBuilder = $this->createQueryBuilder('c')
+            ->leftJoin('c.products', 'p')
+            ->addSelect('COUNT(p.id) as HIDDEN productCount');
+
+        if ($name) {
+            $queryBuilder->andWhere('c.name LIKE :name')
+                ->setParameter('name', '%' . $name . '%');
+        }
+
+        if ($mostProducts) {
+            $queryBuilder->groupBy('c.id')
+                ->orderBy('productCount', 'DESC');
+        }
+
+        if ($mostOnSale) {
+            $queryBuilder->andWhere('p.onSale = :onSale')
+                ->setParameter('onSale', true)
+                ->groupBy('c.id')
+                ->orderBy('productCount', 'DESC');
+        }
+
+        if ($outOfStock) {
+            $queryBuilder->andWhere('p.stock = 0')
+                ->groupBy('c.id');
+        }
+
+        return $queryBuilder->getQuery()->getResult();
+    }
 }

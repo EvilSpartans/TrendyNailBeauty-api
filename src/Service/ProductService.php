@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Classe\ResponseData;
 use App\Dto\ProductFilterDto;
 use App\Repository\ProductRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +17,7 @@ class ProductService
     ) {
     }
 
-    public function getFilteredProducts(Request $request)
+    public function getFilteredProducts(Request $request): ResponseData
     {
         $filterDto = new ProductFilterDto($request);
 
@@ -27,16 +28,19 @@ class ProductService
             foreach ($errors as $error) {
                 $errorMessages[] = $error->getMessage();
             }
-            return new \Symfony\Component\HttpFoundation\JsonResponse(['errors' => $errorMessages], \Symfony\Component\HttpFoundation\JsonResponse::HTTP_BAD_REQUEST);
+            return new ResponseData(['errors' => $errorMessages], \Symfony\Component\HttpFoundation\JsonResponse::HTTP_BAD_REQUEST);
         }
 
-        return $this->productRepository->findByFilters(
+        $products = $this->productRepository->findByFilters(
             $filterDto->category,
-            $filterDto->name,
+            $filterDto->term,
             $filterDto->onSale,
+            $filterDto->stock,
             $filterDto->minPrice,
             $filterDto->maxPrice,
             $filterDto->sortBy
         );
+
+        return new ResponseData(['products' => $products], \Symfony\Component\HttpFoundation\JsonResponse::HTTP_OK);
     }
 }

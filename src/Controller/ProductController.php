@@ -33,9 +33,9 @@ class ProductController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     #[OA\Parameter(
-        name: "name",
+        name: "term",
         in: "query",
-        description: "Filter by name",
+        description: "Filter by term",
         schema: new OA\Schema(type: "text")
     )]
     #[OA\Parameter(
@@ -48,6 +48,12 @@ class ProductController extends AbstractController
         name: "onSale",
         in: "query",
         description: "Filter by onSale",
+        schema: new OA\Schema(type: "boolean")
+    )]
+    #[OA\Parameter(
+        name: "stock",
+        in: "query",
+        description: "Filter by stock",
         schema: new OA\Schema(type: "boolean")
     )]
     #[OA\Parameter(
@@ -79,13 +85,8 @@ class ProductController extends AbstractController
     #[Route('/api/products', name: 'app_product_index', methods: ['GET'])]
     public function index(Request $request, ProductService $service): \Symfony\Component\HttpFoundation\JsonResponse
     {
-        $response = $service->getFilteredProducts($request);
-
-        if ($response instanceof \Symfony\Component\HttpFoundation\JsonResponse) {
-            return $response;
-        }
-
-        return $this->json($response, \Symfony\Component\HttpFoundation\JsonResponse::HTTP_OK);
+        $responseData = $service->getFilteredProducts($request);
+        return $this->json($responseData->getData(), $responseData->getStatus());
     }
 
     /**

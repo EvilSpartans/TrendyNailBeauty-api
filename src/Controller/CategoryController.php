@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Category;
 use OpenApi\Attributes as OA;
+use App\Service\CategoryService;
 use App\Repository\CategoryRepository;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,6 +29,30 @@ class CategoryController extends AbstractController
      *
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
+    #[OA\Parameter(
+        name: "name",
+        in: "query",
+        description: "Filter by name",
+        schema: new OA\Schema(type: "text")
+    )]
+    #[OA\Parameter(
+        name: "mostProducts",
+        in: "query",
+        description: "Filter by mostProducts",
+        schema: new OA\Schema(type: "boolean")
+    )]
+    #[OA\Parameter(
+        name: "mostOnSale",
+        in: "query",
+        description: "Filter by mostOnSale",
+        schema: new OA\Schema(type: "boolean")
+    )]
+    #[OA\Parameter(
+        name: "outOfStock",
+        in: "query",
+        description: "Filter by outOfStock",
+        schema: new OA\Schema(type: "boolean")
+    )]
     #[OA\Response(
         response: 200,
         description: 'Successful response',
@@ -37,9 +62,10 @@ class CategoryController extends AbstractController
         )
     )]
     #[Route('/api/categories', name: 'app_category_index', methods: ['GET'])]
-    public function index(): \Symfony\Component\HttpFoundation\JsonResponse
+    public function index(Request $request, CategoryService $service): \Symfony\Component\HttpFoundation\JsonResponse
     {
-        return $this->json($this->repo->findAll(), \Symfony\Component\HttpFoundation\Response::HTTP_OK);
+        $responseData = $service->getFilteredCategories($request);
+        return $this->json($responseData->getData(), $responseData->getStatus());
     }
 
     /**

@@ -57,6 +57,14 @@ class Product
     #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d'])]
     private ?\DateTimeImmutable $createdAt = null;
 
+    #[ORM\Column(nullable: true)]
+    #[Groups(['createProduct', 'updateProduct'])]
+    private ?bool $stock = null;
+
+    #[ORM\Column(nullable: true)]
+    #[Groups(['createProduct', 'updateProduct'])]
+    private ?bool $onSale = null;
+
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable('now');
@@ -168,5 +176,29 @@ class Product
     public function getUpdatedAt(): ?\DateTime
     {
         return $this->updatedAt;
+    }
+
+    public function isStock(): ?bool
+    {
+        return $this->stock;
+    }
+
+    public function setStock(?bool $stock): static
+    {
+        $this->stock = $stock;
+
+        return $this;
+    }
+
+    public function isOnSale(): ?bool
+    {
+        return $this->onSale;
+    }
+
+    public function setOnSale(?bool $onSale): static
+    {
+        $this->onSale = $onSale;
+
+        return $this;
     }
 }

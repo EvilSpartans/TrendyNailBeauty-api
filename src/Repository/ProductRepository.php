@@ -41,24 +41,29 @@ class ProductRepository extends ServiceEntityRepository
 
     public function findByFilters(
         $category = null,
-        $name = null,
+        $term = null,
         $onSale = null,
         $minPrice = null,
         $maxPrice = null,
         $sortBy = null
     ) {
+
+        if (!$category && !$term && !$onSale && !$minPrice && !$maxPrice && !$sortBy) {
+            return $this->findAll();
+        }
+
         $queryBuilder = $this->createQueryBuilder('p')
             ->leftJoin('p.category', 'c')
             ->addSelect('c');
 
         if ($category) {
-            $queryBuilder->andWhere('c.name = :category')
-                ->setParameter('category', $category);
+            $queryBuilder->andWhere('c.name LIKE :category')
+                ->setParameter('category', '%' . $category . '%');
         }
 
-        if ($name) {
-            $queryBuilder->andWhere('p.name LIKE :name')
-                ->setParameter('name', '%' . $name . '%');
+        if ($term) {
+            $queryBuilder->andWhere('p.name LIKE :term OR p.slug LIKE :term OR p.description LIKE :term')
+                ->setParameter('term', '%' . $term . '%');
         }
 
         if ($onSale) {
