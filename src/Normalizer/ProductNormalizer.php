@@ -7,7 +7,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
-class ProductNormalizer implements NormalizerInterface
+class ProductNormalizer implements NormalizerInterface, DenormalizerInterface
 {
     public function __construct(
         private CategoryRepository $repo,

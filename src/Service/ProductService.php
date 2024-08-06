@@ -38,7 +38,8 @@ class ProductService
             $filterDto->stock,
             $filterDto->minPrice,
             $filterDto->maxPrice,
-            $filterDto->sortBy
+            $filterDto->sortBy,
+            $filterDto->sortByCreatedAt
         );
 
         return new ResponseData(['products' => $products], \Symfony\Component\HttpFoundation\JsonResponse::HTTP_OK);

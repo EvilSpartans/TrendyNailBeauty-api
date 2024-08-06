@@ -45,7 +45,8 @@ class ProductRepository extends ServiceEntityRepository
         $onSale = null,
         $minPrice = null,
         $maxPrice = null,
-        $sortBy = null
+        $sortBy = null,
+        $sortByCreatedAt = null
     ) {
 
         if (!$category && !$term && !$onSale && !$minPrice && !$maxPrice && !$sortBy) {
@@ -86,6 +87,14 @@ class ProductRepository extends ServiceEntityRepository
                 $queryBuilder->orderBy('p.price', 'ASC');
             } elseif ($sortBy === 'price_desc') {
                 $queryBuilder->orderBy('p.price', 'DESC');
+            }
+        }
+
+        if ($sortByCreatedAt) {
+            if ($sortByCreatedAt === 'created_at_asc') {
+                $queryBuilder->orderBy('p.createdAt', 'ASC');
+            } elseif ($sortByCreatedAt === 'created_at_desc') {
+                $queryBuilder->orderBy('p.createdAt', 'DESC');
             }
         }
 

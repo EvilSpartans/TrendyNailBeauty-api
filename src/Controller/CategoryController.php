@@ -9,7 +9,9 @@ use App\Repository\CategoryRepository;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -65,7 +67,9 @@ class CategoryController extends AbstractController
     public function index(Request $request, CategoryService $service): \Symfony\Component\HttpFoundation\JsonResponse
     {
         $responseData = $service->getFilteredCategories($request);
-        return $this->json($responseData->getData()['categories'], $responseData->getStatus());
+        $data = $this->serializer->serialize($responseData->getData()['categories'], 'json', ['groups' => ['getCategories']]);
+
+        return new JsonResponse($data, \Symfony\Component\HttpFoundation\Response::HTTP_OK, [], true);
     }
 
     /**
@@ -88,16 +92,26 @@ class CategoryController extends AbstractController
      * @param Category $category
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
+    #[IsGranted('ROLE_ADMIN')]
     #[OA\RequestBody(
         content: new OA\JsonContent(
             type: 'object',
-            ref: new Model(type: Category::class),
+            example: "{ \"name\": \"Category 1\" }"
         )
     )]
-    #[OA\Response(
-        response: 201,
-        description: 'Successful created',
-        content: new Model(type: Category::class))
+    #[
+        OA\Response(
+            response: 201,
+            description: 'Successful created',
+            content: new OA\JsonContent(
+                type: 'object',
+                example: "[
+                {
+                    \"name\": \"Category 1\"
+                }
+            ]"
+            )
+        )
     ]
     #[Route('/api/category/create', name: 'app_category_create', methods: ['POST'])]
     public function create(Request $request): \Symfony\Component\HttpFoundation\JsonResponse
@@ -117,16 +131,26 @@ class CategoryController extends AbstractController
     /**
      * Update Object
      */
+    #[IsGranted('ROLE_ADMIN')]
     #[OA\RequestBody(
         content: new OA\JsonContent(
             type: 'object',
-            ref: new Model(type: Category::class),
+            example: '{
+                "name": "Vêtements"
+              }'
         )
     )]
-    #[OA\Response(
-        response: 201,
-        description: 'Successful updated',
-        content: new Model(type: Category::class))
+    #[
+        OA\Response(
+            response: 201,
+            description: 'Successful updated',
+            content: new OA\JsonContent(
+                type: 'object',
+                example: '{
+                    "name": "Vêtements"
+                  }'
+            )
+        )
     ]
     #[Route('/api/category/{id}', name: 'app_category_update', methods: ['PUT'])]
     public function update(Category $category, Request $request): \Symfony\Component\HttpFoundation\JsonResponse
@@ -145,8 +169,48 @@ class CategoryController extends AbstractController
     }
 
     /**
+     * Upload image
+     */
+    #[IsGranted('ROLE_ADMIN')]
+    #[OA\RequestBody(
+        content: [
+            new OA\MediaType(
+                mediaType: 'multipart/form-data',
+                schema: new OA\Schema(properties: [
+                    new OA\Property(
+                        property: 'file',
+                        type: 'file',
+                    ),
+                ])
+            ),
+        ]
+    )]
+    #[
+        OA\Response(
+            response: 201,
+            description: 'Successful uploaded',
+            content: new Model(type: Category::class)
+        )
+    ]
+    #[Route(path: '/api/category/{id}/upload', name: 'app_category_upload', methods: ['POST'])]
+    public function upload(Category $category, Request $request): \Symfony\Component\HttpFoundation\JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $file = $request->files->get('file');
+
+        if (!$file) {
+            return $this->json('Error while downloading', 400);
+        }
+
+        $category->setImageFile($file);
+        $this->repo->save($category, true);
+        return $this->json('Successful uploaded', 201);
+    }
+
+    /**
      * Delete Object
      */
+    #[IsGranted('ROLE_ADMIN')]
     #[OA\Response(
         response: 204,
         description: 'Successful deleted',

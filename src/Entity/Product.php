@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use DateTimeImmutable;
+use Cocur\Slugify\Slugify;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ProductRepository;
@@ -23,27 +24,28 @@ class Product
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['createProduct', 'updateProduct'])]
+    #[Groups(['getProducts', 'getCategories', 'createProduct', 'updateProduct'])]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Ignore]
+    #[Groups(['getProducts'])]
     private ?Category $category = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['createProduct', 'updateProduct'])]
+    #[Groups(['getProducts', 'getCategories'])]
     private ?string $slug = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['createProduct', 'updateProduct'])]
+    #[Groups(['getProducts', 'getCategories', 'createProduct', 'updateProduct'])]
     private ?string $description = null;
 
     #[ORM\Column]
-    #[Groups(['createProduct', 'updateProduct'])]
+    #[Groups(['getProducts', 'getCategories', 'createProduct', 'updateProduct'])]
     private ?float $price = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['getProducts', 'getCategories'])]
     private ?string $image = null;
 
     #[Vich\UploadableField(mapping: 'products', fileNameProperty: 'image')]
@@ -55,14 +57,15 @@ class Product
 
     #[ORM\Column]
     #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d'])]
+    #[Groups(['getProducts', 'getCategories'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['createProduct', 'updateProduct'])]
+    #[Groups(['getProducts', 'getCategories', 'createProduct', 'updateProduct'])]
     private ?bool $stock = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['createProduct', 'updateProduct'])]
+    #[Groups(['getProducts', 'getCategories', 'createProduct', 'updateProduct'])]
     private ?bool $onSale = null;
 
     public function __construct()
@@ -83,6 +86,9 @@ class Product
     public function setName(string $name): self
     {
         $this->name = $name;
+
+        $slugify = new Slugify();
+        $this->slug = $slugify->slugify($name);
 
         return $this;
     }

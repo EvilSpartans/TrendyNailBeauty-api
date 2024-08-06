@@ -10,6 +10,7 @@ use App\Repository\CategoryRepository;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -86,7 +87,9 @@ class ProductController extends AbstractController
     public function index(Request $request, ProductService $service): \Symfony\Component\HttpFoundation\JsonResponse
     {
         $responseData = $service->getFilteredProducts($request);
-        return $this->json($responseData->getData()['products'], $responseData->getStatus());
+        $data = $this->serializer->serialize($responseData->getData()['products'], 'json', ['groups' => ['getProducts']]);
+
+        return new JsonResponse($data, \Symfony\Component\HttpFoundation\Response::HTTP_OK, [], true);
     }
 
     /**
@@ -119,6 +122,9 @@ class ProductController extends AbstractController
                 new OA\Property('name', type: 'string'),
                 new OA\Property('description', type: 'string'),
                 new OA\Property('categoryId', type: 'string'),
+                new OA\Property('price', type: 'float'),
+                new OA\Property('stock', type: 'boolean'),
+                new OA\Property('onSale', type: 'boolean'),
             ],
         )
     )]
@@ -135,13 +141,16 @@ class ProductController extends AbstractController
         $product = $this->serializer->deserialize($request->getContent(), Product::class, 'json', [
             'groups' => ['createProduct']
         ]);
+
         $errors = $this->validator->validate($product);
         if (count($errors) > 0) {
             return $this->json($errors, 422);
         }
-
+    
         $this->repo->save($product, true);
-        return $this->json($product, 201);
+        $data = $this->serializer->serialize($product, 'json', ['groups' => ['getProducts']]);
+
+        return new JsonResponse($data, \Symfony\Component\HttpFoundation\Response::HTTP_CREATED, [], true);
     }
 
     /**
@@ -151,18 +160,29 @@ class ProductController extends AbstractController
     #[OA\RequestBody(
         content: new OA\JsonContent(
             type: 'object',
-            properties: [
-                new OA\Property('name', type: 'string'),
-                new OA\Property('description', type: 'string'),
-                new OA\Property('categoryId', type: 'string'),
-            ],
+            example: '{
+                "name": "Sac Channel",
+                "description": null,
+                "price": null,
+                "stock": true,
+                "onSale": false
+              }'
         )
     )]
     #[
         OA\Response(
             response: 201,
             description: 'Successful updated',
-            content: new Model(type: Product::class)
+            content: new OA\JsonContent(
+                type: 'object',
+                example: '{
+                    "name": "Sac Channel",
+                    "description": null,
+                    "price": null,
+                    "stock": true,
+                    "onSale": false
+                  }'
+            )
         )
     ]
     #[Route('/api/product/{id}', name: 'app_product_update', methods: ['PUT'])]
