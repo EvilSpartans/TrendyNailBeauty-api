@@ -5,11 +5,11 @@ namespace App\Service;
 use App\Classe\ResponseData;
 use App\Dto\ProductFilterDto;
 use App\Repository\ProductRepository;
+use Symfony\Contracts\Cache\CacheInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Contracts\Cache\CacheInterface;
 
 class ProductService
 {
