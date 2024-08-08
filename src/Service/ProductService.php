@@ -9,6 +9,7 @@ use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 class ProductService
 {
@@ -17,7 +18,8 @@ class ProductService
         private ProductRepository $productRepository,
         private NormalizerInterface $normalizer,
         private PaginatorInterface $paginator,
-        private ValidatorInterface $validator
+        private ValidatorInterface $validator,
+        private CacheInterface $cache
     ) {
     }
 
@@ -35,38 +37,52 @@ class ProductService
             return new ResponseData(['errors' => $errorMessages], \Symfony\Component\HttpFoundation\JsonResponse::HTTP_BAD_REQUEST);
         }
 
-        $query = $this->productRepository->findByFilters(
+        $cacheKey = sprintf(
+            'filtered_products_%s_%s_%s_%s_%s_%s_%s_%s',
             $filterDto->category,
             $filterDto->term,
-            $filterDto->onSale,
-            $filterDto->stock,
+            $filterDto->onSale ? '1' : '0',
+            $filterDto->stock ? '1' : '0',
             $filterDto->minPrice,
             $filterDto->maxPrice,
             $filterDto->sortBy,
             $filterDto->sortByCreatedAt
         );
-    
-        $pagination = $this->paginator->paginate(
-            $query,
-            $request->query->getInt('page', 1),
-            9
-        );
+        
+        $data = $this->cache->get($cacheKey, function () use ($filterDto, $request) {
+            $query = $this->productRepository->findByFilters(
+                $filterDto->category,
+                $filterDto->term,
+                $filterDto->onSale,
+                $filterDto->stock,
+                $filterDto->minPrice,
+                $filterDto->maxPrice,
+                $filterDto->sortBy,
+                $filterDto->sortByCreatedAt
+            );
 
-        $currentPage = $pagination->getCurrentPageNumber();
-        $totalPages = ceil($pagination->getTotalItemCount() / $pagination->getItemNumberPerPage());
+            $pagination = $this->paginator->paginate(
+                $query,
+                $request->query->getInt('page', 1),
+                9
+            );
 
-        $products = [];
-        foreach ($pagination->getItems() as $product) {
-            $productData = $this->normalizer->normalize($product, null, ['groups' => ['getProducts']]);
-            $products[] = $productData;
-        }
+            $currentPage = $pagination->getCurrentPageNumber();
+            $totalPages = ceil($pagination->getTotalItemCount() / $pagination->getItemNumberPerPage());
 
-        $response = [
-            'products' => $products,
-            'page' => $currentPage,
-            'countPage' => $totalPages
-        ];
+            $products = [];
+            foreach ($pagination->getItems() as $product) {
+                $productData = $this->normalizer->normalize($product, null, ['groups' => ['getProducts']]);
+                $products[] = $productData;
+            }
 
-        return new ResponseData($response, \Symfony\Component\HttpFoundation\JsonResponse::HTTP_OK);
+            return [
+                'products' => $products,
+                'page' => $currentPage,
+                'countPage' => $totalPages
+            ];
+        });
+
+        return new ResponseData($data, \Symfony\Component\HttpFoundation\JsonResponse::HTTP_OK);
     }
 }
