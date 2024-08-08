@@ -43,6 +43,7 @@ class ProductRepository extends ServiceEntityRepository
         $category = null,
         $term = null,
         $onSale = null,
+        $stock = null,
         $minPrice = null,
         $maxPrice = null,
         $sortBy = null,
@@ -70,6 +71,11 @@ class ProductRepository extends ServiceEntityRepository
         if ($onSale) {
             $queryBuilder->andWhere('p.onSale = :onSale')
                 ->setParameter('onSale', $onSale);
+        }
+
+        if ($stock) { 
+            $queryBuilder->andWhere('p.stock = :stock')
+            ->setParameter('stock', $stock);
         }
 
         if ($minPrice) {

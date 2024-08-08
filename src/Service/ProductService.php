@@ -35,17 +35,19 @@ class ProductService
             return new ResponseData(['errors' => $errorMessages], \Symfony\Component\HttpFoundation\JsonResponse::HTTP_BAD_REQUEST);
         }
 
+        $query = $this->productRepository->findByFilters(
+            $filterDto->category,
+            $filterDto->term,
+            $filterDto->onSale,
+            $filterDto->stock,
+            $filterDto->minPrice,
+            $filterDto->maxPrice,
+            $filterDto->sortBy,
+            $filterDto->sortByCreatedAt
+        );
+    
         $pagination = $this->paginator->paginate(
-            $this->productRepository->findByFilters(
-                $filterDto->category,
-                $filterDto->term,
-                $filterDto->onSale,
-                $filterDto->stock,
-                $filterDto->minPrice,
-                $filterDto->maxPrice,
-                $filterDto->sortBy,
-                $filterDto->sortByCreatedAt
-            ),
+            $query,
             $request->query->getInt('page', 1),
             9
         );
@@ -53,6 +55,7 @@ class ProductService
         $currentPage = $pagination->getCurrentPageNumber();
         $totalPages = ceil($pagination->getTotalItemCount() / $pagination->getItemNumberPerPage());
 
+        $products = [];
         foreach ($pagination->getItems() as $product) {
             $productData = $this->normalizer->normalize($product, null, ['groups' => ['getProducts']]);
             $products[] = $productData;
