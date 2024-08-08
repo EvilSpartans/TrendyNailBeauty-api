@@ -34,6 +34,12 @@ class ProductController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     #[OA\Parameter(
+        name: "page",
+        in: "query",
+        description: "Page number for pagination",
+        schema: new OA\Schema(type: "int")
+    )]
+    #[OA\Parameter(
         name: "term",
         in: "query",
         description: "Filter by term",
@@ -87,9 +93,7 @@ class ProductController extends AbstractController
     public function index(Request $request, ProductService $service): \Symfony\Component\HttpFoundation\JsonResponse
     {
         $responseData = $service->getFilteredProducts($request);
-        $data = $this->serializer->serialize($responseData->getData()['products'], 'json', ['groups' => ['getProducts']]);
-
-        return new JsonResponse($data, \Symfony\Component\HttpFoundation\Response::HTTP_OK, [], true);
+        return new JsonResponse($responseData->getData(), \Symfony\Component\HttpFoundation\Response::HTTP_OK);
     }
 
     /**
@@ -105,7 +109,8 @@ class ProductController extends AbstractController
     #[Route('/api/product/{id}', name: 'app_product_show', methods: ['GET'])]
     public function show(Product $product): \Symfony\Component\HttpFoundation\JsonResponse
     {
-        return $this->json($product);
+        $data = $this->serializer->serialize($product, 'json', ['groups' => ['getProducts']]);
+        return new JsonResponse($data, \Symfony\Component\HttpFoundation\Response::HTTP_OK, [], true);
     }
 
     /**
@@ -146,7 +151,7 @@ class ProductController extends AbstractController
         if (count($errors) > 0) {
             return $this->json($errors, 422);
         }
-    
+
         $this->repo->save($product, true);
         $data = $this->serializer->serialize($product, 'json', ['groups' => ['getProducts']]);
 

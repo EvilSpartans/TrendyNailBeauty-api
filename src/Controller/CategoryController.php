@@ -83,7 +83,8 @@ class CategoryController extends AbstractController
     #[Route('/api/category/{id}', name: 'app_category_show', methods: ['GET'])]
     public function show(Category $category): \Symfony\Component\HttpFoundation\JsonResponse
     {
-        return $this->json($category, \Symfony\Component\HttpFoundation\Response::HTTP_OK);
+        $data = $this->serializer->serialize($category, 'json', ['groups' => ['getCategories']]);
+        return new JsonResponse($data, \Symfony\Component\HttpFoundation\Response::HTTP_OK, [], true);
     }
 
     /**

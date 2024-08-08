@@ -13,6 +13,7 @@
         "doctrine/doctrine-bundle": "^2.11",
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "^3.0",
+        "knplabs/knp-paginator-bundle": "^6.4",
         "lexik/jwt-authentication-bundle": "^2.20",
         "nelmio/api-doc-bundle": "^4.11",
         "nelmio/cors-bundle": "^2.4",

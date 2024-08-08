@@ -21,6 +21,7 @@ class Product
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['getProducts', 'getCategories'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
