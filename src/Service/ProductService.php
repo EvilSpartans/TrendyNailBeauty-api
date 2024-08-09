@@ -39,27 +39,19 @@ class ProductService
 
         $cacheKey = sprintf(
             'filtered_products_%s_%s_%s_%s_%s_%s_%s_%s',
-            $filterDto->category,
-            $filterDto->term,
-            $filterDto->onSale ? '1' : '0',
-            $filterDto->stock ? '1' : '0',
-            $filterDto->minPrice,
-            $filterDto->maxPrice,
-            $filterDto->sortBy,
-            $filterDto->sortByCreatedAt
+            $filterDto->category ?? 'null',
+            $filterDto->term ?? 'null',
+            $filterDto->onSale !== null ? ($filterDto->onSale ? '1' : '0') : 'null',
+            $filterDto->stock !== null ? ($filterDto->stock ? '1' : '0') : 'null',
+            $filterDto->minPrice ?? 'null',
+            $filterDto->maxPrice ?? 'null',
+            $filterDto->sortBy ?? 'null',
+            $filterDto->sortByCreatedAt ?? 'null'
         );
         
         $data = $this->cache->get($cacheKey, function () use ($filterDto, $request) {
-            $query = $this->productRepository->findByFilters(
-                $filterDto->category,
-                $filterDto->term,
-                $filterDto->onSale,
-                $filterDto->stock,
-                $filterDto->minPrice,
-                $filterDto->maxPrice,
-                $filterDto->sortBy,
-                $filterDto->sortByCreatedAt
-            );
+
+            $query = $this->productRepository->findByFilters($filterDto);
 
             $pagination = $this->paginator->paginate(
                 $query,

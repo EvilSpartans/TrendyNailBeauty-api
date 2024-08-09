@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Dto\ProductFilterDto;
 use App\Entity\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -39,71 +40,65 @@ class ProductRepository extends ServiceEntityRepository
         }
     }
 
-    public function findByFilters(
-        $category = null,
-        $term = null,
-        $onSale = null,
-        $stock = null,
-        $minPrice = null,
-        $maxPrice = null,
-        $sortBy = null,
-        $sortByCreatedAt = null
-    ) {
+    public function findByFilters(ProductFilterDto $filter)
+    {
+        $queryBuilder = $this->createQueryBuilder('p');
 
-        if (!$category && !$term && !$onSale && !$minPrice && !$maxPrice && !$sortBy) {
-            return $this->findAll();
+        if ($filter->category !== null) {
+            $queryBuilder->leftJoin('p.category', 'c')
+                ->addSelect('c')
+                ->andWhere('c.name LIKE :category')
+                ->setParameter('category', '%' . $filter->category . '%');
         }
 
-        $queryBuilder = $this->createQueryBuilder('p')
-            ->leftJoin('p.category', 'c')
-            ->addSelect('c');
-
-        if ($category) {
-            $queryBuilder->andWhere('c.name LIKE :category')
-                ->setParameter('category', '%' . $category . '%');
-        }
-
-        if ($term) {
+        if ($filter->term !== null) {
             $queryBuilder->andWhere('p.name LIKE :term OR p.slug LIKE :term OR p.description LIKE :term')
-                ->setParameter('term', '%' . $term . '%');
+                ->setParameter('term', '%' . $filter->term . '%');
         }
 
-        if ($onSale) {
+        if ($filter->onSale !== null) {
             $queryBuilder->andWhere('p.onSale = :onSale')
-                ->setParameter('onSale', $onSale);
+                ->setParameter('onSale', $filter->onSale);
         }
 
-        if ($stock) { 
+        if ($filter->stock !== null) {
             $queryBuilder->andWhere('p.stock = :stock')
-            ->setParameter('stock', $stock);
+                ->setParameter('stock', $filter->stock);
         }
 
-        if ($minPrice) {
+        if ($filter->minPrice !== null) {
             $queryBuilder->andWhere('p.price >= :minPrice')
-                ->setParameter('minPrice', $minPrice);
+                ->setParameter('minPrice', $filter->minPrice);
         }
 
-        if ($maxPrice) {
+        if ($filter->maxPrice !== null) {
             $queryBuilder->andWhere('p.price <= :maxPrice')
-                ->setParameter('maxPrice', $maxPrice);
+                ->setParameter('maxPrice', $filter->maxPrice);
         }
 
-        if ($sortBy) {
-            if ($sortBy === 'price_asc') {
-                $queryBuilder->orderBy('p.price', 'ASC');
-            } elseif ($sortBy === 'price_desc') {
-                $queryBuilder->orderBy('p.price', 'DESC');
+        if ($filter->sortBy !== null) {
+            switch ($filter->sortBy) {
+                case 'price_asc':
+                    $queryBuilder->addOrderBy('p.price', 'ASC');
+                    break;
+                case 'price_desc':
+                    $queryBuilder->addOrderBy('p.price', 'DESC');
+                    break;
             }
         }
 
-        if ($sortByCreatedAt) {
-            if ($sortByCreatedAt === 'created_at_asc') {
-                $queryBuilder->orderBy('p.createdAt', 'ASC');
-            } elseif ($sortByCreatedAt === 'created_at_desc') {
-                $queryBuilder->orderBy('p.createdAt', 'DESC');
+        if ($filter->sortByCreatedAt !== null) {
+            switch ($filter->sortByCreatedAt) {
+                case 'created_at_asc':
+                    $queryBuilder->addOrderBy('p.createdAt', 'ASC');
+                    break;
+                case 'created_at_desc':
+                    $queryBuilder->addOrderBy('p.createdAt', 'DESC');
+                    break;
             }
         }
 
         return $queryBuilder->getQuery()->getResult();
     }
+
 }
