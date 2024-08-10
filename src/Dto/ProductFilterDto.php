@@ -17,8 +17,8 @@ class ProductFilterDto
     #[Assert\Type('bool')]
     public ?bool $onSale = null;
 
-    #[Assert\Type('bool')]
-    public ?bool $stock = null;
+    #[Assert\Type('string')]
+    public ?string $stock = null;
 
     #[Assert\PositiveOrZero(message: "The minimum price must be a positive number.")]
     public ?float $minPrice = null;
@@ -39,7 +39,7 @@ class ProductFilterDto
         $this->category = $request->query->get('category');
         $this->term = $request->query->get('term');
         $this->onSale = filter_var($request->query->get('onSale'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-        $this->stock = filter_var($request->query->get('stock'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        $this->stock = $request->query->get('stock');
         $this->minPrice = $request->query->get('minPrice') ? (float)$request->query->get('minPrice') : null;
         $this->maxPrice = $request->query->get('maxPrice') ? (float)$request->query->get('maxPrice') : null;
         $this->sortByCreatedAt = $request->query->get('sortByCreatedAt');

@@ -63,11 +63,11 @@ class Product
 
     #[ORM\Column(nullable: true)]
     #[Groups(['getProducts', 'getCategories', 'createProduct', 'updateProduct'])]
-    private ?bool $stock = null;
-
-    #[ORM\Column(nullable: true)]
-    #[Groups(['getProducts', 'getCategories', 'createProduct', 'updateProduct'])]
     private ?bool $onSale = null;
+
+    #[ORM\Column(length: 255)]
+    #[Groups(['getProducts', 'getCategories', 'createProduct', 'updateProduct'])]
+    private ?string $stock = null;
 
     public function __construct()
     {
@@ -185,18 +185,6 @@ class Product
         return $this->updatedAt;
     }
 
-    public function isStock(): ?bool
-    {
-        return $this->stock;
-    }
-
-    public function setStock(?bool $stock): static
-    {
-        $this->stock = $stock;
-
-        return $this;
-    }
-
     public function isOnSale(): ?bool
     {
         return $this->onSale;
@@ -205,6 +193,18 @@ class Product
     public function setOnSale(?bool $onSale): static
     {
         $this->onSale = $onSale;
+
+        return $this;
+    }
+
+    public function getStock(): ?string
+    {
+        return $this->stock;
+    }
+
+    public function setStock(string $stock): static
+    {
+        $this->stock = $stock;
 
         return $this;
     }
