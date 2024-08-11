@@ -21,11 +21,11 @@ class Product
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['getProducts', 'getCategories'])]
+    #[Groups(['getProducts', 'getCategories', 'getOrders'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['getProducts', 'getCategories', 'createProduct', 'updateProduct'])]
+    #[Groups(['getProducts', 'getCategories', 'createProduct','updateProduct', 'getOrders'])]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'products')]
@@ -34,7 +34,7 @@ class Product
     private ?Category $category = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['getProducts', 'getCategories'])]
+    #[Groups(['getProducts','getCategories', 'getOrders'])]
     private ?string $slug = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -42,7 +42,7 @@ class Product
     private ?string $description = null;
 
     #[ORM\Column]
-    #[Groups(['getProducts', 'getCategories', 'createProduct', 'updateProduct'])]
+    #[Groups(['getProducts', 'getCategories', 'createProduct','updateProduct', 'getOrders'])]
     private ?float $price = null;
 
     #[ORM\Column(length: 255, nullable: true)]

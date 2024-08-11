@@ -68,7 +68,6 @@ class ResetPasswordController extends AbstractController
         $reset_password = new ResetPassword();
         $reset_password->setUser($user);
         $reset_password->setToken(uniqid());
-        $reset_password->setCreatedAt(new \DateTime());
         $this->manager->persist($reset_password);
         $this->manager->flush();
 

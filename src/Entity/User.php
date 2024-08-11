@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -18,7 +20,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    #[Groups(['createUser', 'updateUser'])]
+    #[Groups(['createUser','updateUser', 'getOrders'])]
     private ?string $username = null;
 
     /**
@@ -39,7 +41,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['createUser', 'updateUser'])]
+    #[Groups(['createUser','updateUser', 'getOrders'])]
     private ?string $email = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -51,20 +53,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $gender = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['updateUser'])]
+    #[Groups(['updateUser', 'getOrders'])]
     private ?string $street = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['updateUser'])]
+    #[Groups(['updateUser', 'getOrders'])]
     private ?string $zipCode = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['updateUser'])]
+    #[Groups(['updateUser', 'getOrders'])]
     private ?string $city = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['updateUser'])]
+    #[Groups(['updateUser', 'getOrders'])]
     private ?string $country = null;
+
+    #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $orders;
+
+    public function __construct()
+    {
+        $this->orders = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -216,6 +226,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCountry(?string $country): static
     {
         $this->country = $country;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Order>
+     */
+    public function getOrders(): Collection
+    {
+        return $this->orders;
+    }
+
+    public function addOrder(Order $order): static
+    {
+        if (!$this->orders->contains($order)) {
+            $this->orders->add($order);
+            $order->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrder(Order $order): static
+    {
+        if ($this->orders->removeElement($order)) {
+            // set the owning side to null (unless already changed)
+            if ($order->getUser() === $this) {
+                $order->setUser(null);
+            }
+        }
 
         return $this;
     }
