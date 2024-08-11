@@ -43,6 +43,7 @@ class ProductService
             9
         );
 
+        $totalItems = $pagination->getTotalItemCount();
         $currentPage = $pagination->getCurrentPageNumber();
         $totalPages = ceil($pagination->getTotalItemCount() / $pagination->getItemNumberPerPage());
 
@@ -55,7 +56,8 @@ class ProductService
         $response = [
             'products' => $products,
             'page' => $currentPage,
-            'countPage' => $totalPages
+            'countPage' => $totalPages,
+            'totalItems' => $totalItems,
         ];
 
         return new ResponseData($response, \Symfony\Component\HttpFoundation\JsonResponse::HTTP_OK);
