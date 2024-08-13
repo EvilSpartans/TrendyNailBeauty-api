@@ -118,4 +118,13 @@ class Category
             $this->updatedAt = new \DateTime('now');
         }
     }
+
+    /**
+     * Return number of products
+     */
+    #[Groups(['getCategories'])]
+    public function getProductsCount(): int
+    {
+        return $this->products->count();
+    }
 }

@@ -84,7 +84,9 @@ class UserController extends AbstractController
         }
 
         $this->repo->save($user, true);
-        return $this->json($user);
+        $data = $this->serializer->serialize($user, 'json', ['groups' => ['getUsers']]);
+
+        return new \Symfony\Component\HttpFoundation\JsonResponse($data, \Symfony\Component\HttpFoundation\Response::HTTP_OK, [], true);
     }
 
     /**

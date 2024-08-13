@@ -17,10 +17,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['getUsers'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    #[Groups(['createUser','updateUser', 'getOrders'])]
+    #[Groups(['getUsers', 'createUser','updateUser', 'getOrders'])]
     private ?string $username = null;
 
     /**
@@ -41,31 +42,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['createUser','updateUser', 'getOrders'])]
+    #[Groups(['getUsers', 'createUser','updateUser', 'getOrders'])]
     private ?string $email = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['updateUser'])]
+    #[Groups(['getUsers', 'updateUser'])]
     private ?string $phone = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['updateUser'])]
+    #[Groups(['getUsers', 'updateUser'])]
     private ?string $gender = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['updateUser', 'getOrders'])]
+    #[Groups(['getUsers', 'updateUser', 'getOrders'])]
     private ?string $street = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['updateUser', 'getOrders'])]
+    #[Groups(['getUsers', 'updateUser', 'getOrders'])]
     private ?string $zipCode = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['updateUser', 'getOrders'])]
+    #[Groups(['getUsers', 'updateUser', 'getOrders'])]
     private ?string $city = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['updateUser', 'getOrders'])]
+    #[Groups(['getUsers', 'updateUser', 'getOrders'])]
     private ?string $country = null;
 
     #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'user', orphanRemoval: true)]
@@ -258,5 +259,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+    /**
+     * Return number of orders
+     */
+    #[Groups(['getUsers'])]
+    public function getOrdersCount(): int
+    {
+        return $this->orders->count();
     }
 }
