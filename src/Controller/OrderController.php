@@ -62,10 +62,9 @@ class OrderController extends AbstractController
         )
     )]
     #[Route('/api/orders/user', name: 'app_order_user', methods: ['GET'])]
-    public function user(Request $request): \Symfony\Component\HttpFoundation\JsonResponse
+    public function user(): \Symfony\Component\HttpFoundation\JsonResponse
     {
-        $user = $this->userRepository->findOneBy(['id' => $request->get('userId')]);
-        $orders = $this->repo->findByUser($user);
+        $orders = $this->repo->findByUser($this->getUser());
         $data = $this->serializer->serialize($orders, 'json', ['groups' => ['getOrders']]);
 
         return new JsonResponse($data, \Symfony\Component\HttpFoundation\Response::HTTP_OK, [], true);

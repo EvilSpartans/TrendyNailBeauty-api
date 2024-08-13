@@ -21,6 +21,12 @@ services:
             $repo: '@App\Repository\CategoryRepository'
             $normalizer: '@serializer.normalizer.object'
 
+    App\Normalizer\OrderNormalizer:
+        arguments:
+            $repo: '@App\Repository\ProductRepository'
+            $security: '@Symfony\Bundle\SecurityBundle\Security'
+            $normalizer: '@serializer.normalizer.object'
+
     # Events
     App\Events\JwtCreatedListener:
         tags:

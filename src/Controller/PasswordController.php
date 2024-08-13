@@ -49,39 +49,6 @@ class PasswordController extends AbstractController
     }
 
     /**
-     * Verify Password Token
-     */
-    #[OA\RequestBody(
-        content: [
-            new OA\MediaType(
-                mediaType: 'multipart/form-data',
-                schema: new OA\Schema(properties: [
-                    new OA\Property(property: 'token', type: 'text')
-                ])
-            ),
-        ]
-    )]
-    #[
-        OA\Response(
-            response: 201,
-            description: 'Successful verify token for password',
-            content: new OA\JsonContent(
-                type: 'object',
-                example: '{
-                    "message": "Vous pouvez maintenant choisir un nouveau mot de passe"
-                }'
-            )
-        )
-    ]
-    #[Route(path: '/api/resetPassword/token', name: 'app_resetPassword_token', methods: ['POST'])]
-    public function token(Request $request): \Symfony\Component\HttpFoundation\JsonResponse
-    {
-        $response = $this->service->verifyToken($request->get('token'));
-
-        return new \Symfony\Component\HttpFoundation\JsonResponse($response->getData(), $response->getStatus());
-    }
-
-    /**
      * Update Password
      *
      * @param Request $request

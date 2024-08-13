@@ -47,27 +47,6 @@ class PasswordService
         ], 201); 
     }
 
-    public function verifyToken(string $token): ResponseData
-    {
-        $resetPassword = $this->repo->findOneBy(['token' => $token]);
-
-        if (!$resetPassword) {
-            return new ResponseData([
-                "message" => "Aucun utilisateur correspondant"
-            ], 400);
-        }
-
-        $now = new \DateTime();
-        if ($now > $resetPassword->getCreatedAt()->modify('+3 hours')) {
-            return new ResponseData([], 401);
-        }
-
-        return new ResponseData([
-            "message" => "Vous pouvez maintenant choisir un nouveau mot de passe",
-            "token" => $token
-        ], 200);
-    }
-
     public function resetPassword(string $token, string $newPassword): ResponseData
     {
         $resetPassword = $this->repo->findOneBy(['token' => $token]);
@@ -79,7 +58,6 @@ class PasswordService
         }
 
         $user = $resetPassword->getUser();
-        // $user = $this->userRepository->findOneBy(["id" => $resetPassword->getUser()]);
 
         $now = new \DateTime();
         if ($now > $resetPassword->getCreatedAt()->modify('+3 hours')) {
