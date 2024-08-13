@@ -3,9 +3,9 @@
 namespace App\Entity;
 
 use App\Repository\ResetPasswordRepository;
+use DateTime;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use DateTimeImmutable;
 
 #[ORM\Entity(repositoryClass: ResetPasswordRepository::class)]
 class ResetPassword
@@ -23,11 +23,11 @@ class ResetPassword
     private ?string $token = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $createdAt = null;
+    private ?\DateTime $createdAt = null;
 
     public function __construct()
     {
-        $this->createdAt = new DateTimeImmutable('now');
+        $this->createdAt = new DateTime('now');
     }
 
     public function getId(): ?int
@@ -59,12 +59,12 @@ class ResetPassword
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): static
+    public function setCreatedAt(\DateTime $createdAt): static
     {
         $this->createdAt = $createdAt;
 

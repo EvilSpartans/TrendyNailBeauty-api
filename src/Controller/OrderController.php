@@ -4,8 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Order;
 use OpenApi\Attributes as OA;
-use App\Repository\OrderRepository;
 use App\Repository\UserRepository;
+use App\Repository\OrderRepository;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -31,6 +31,7 @@ class OrderController extends AbstractController
      *
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
+    #[IsGranted('ROLE_ADMIN')]
     #[OA\Response(
         response: 200,
         description: 'Successful response',
@@ -40,7 +41,28 @@ class OrderController extends AbstractController
         )
     )]
     #[Route('/api/orders', name: 'app_order_index', methods: ['GET'])]
-    public function index(Request $request): \Symfony\Component\HttpFoundation\JsonResponse
+    public function index(): \Symfony\Component\HttpFoundation\JsonResponse
+    {
+        $data = $this->serializer->serialize($this->repo->findAll(), 'json', ['groups' => ['getOrders']]);
+        return new JsonResponse($data, \Symfony\Component\HttpFoundation\Response::HTTP_OK, [], true);
+    }
+
+    /**
+     * Fetch By User
+     *
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    #[IsGranted('ROLE_USER')]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Order::class))
+        )
+    )]
+    #[Route('/api/orders/user', name: 'app_order_user', methods: ['GET'])]
+    public function user(Request $request): \Symfony\Component\HttpFoundation\JsonResponse
     {
         $user = $this->userRepository->findOneBy(['id' => $request->get('userId')]);
         $orders = $this->repo->findByUser($user);
@@ -106,7 +128,9 @@ class OrderController extends AbstractController
         }
 
         $this->repo->save($order, true);
-        return $this->json($order, \Symfony\Component\HttpFoundation\Response::HTTP_CREATED);
+        $data = $this->serializer->serialize($order, 'json', ['groups' => ['getOrders']]);
+
+        return new JsonResponse($data, \Symfony\Component\HttpFoundation\Response::HTTP_OK, [], true);
     }
 
     /**
@@ -146,35 +170,9 @@ class OrderController extends AbstractController
         }
 
         $this->repo->save($order, true);
-        return $this->json($order, \Symfony\Component\HttpFoundation\Response::HTTP_CREATED);
-    }
-
-    /**
-     * Retrieve Valid Checkout
-     */
-    #[Route('/order/sucess/{id}', name: 'app_order_success')]
-    public function sucess(Order $order): \Symfony\Component\HttpFoundation\JsonResponse
-    {
-        $order->setStatus("Valid");
-        $this->repo->save($order, true);
-
-        return $this->json([
-            "status" => "Opération validée"
-        ], \Symfony\Component\HttpFoundation\Response::HTTP_CREATED);
-    }
-
-    /**
-     * Retrieve Rejected Checkout
-     */
-    #[Route('/order/error/{id}', name: 'app_order_error')]
-    public function error(Order $order): \Symfony\Component\HttpFoundation\JsonResponse
-    {
-        $order->setStatus("Rejected");
-        $this->repo->save($order, true);
-
-        return $this->json([
-            "status" => "Opération rejettée"
-        ], \Symfony\Component\HttpFoundation\Response::HTTP_CREATED);
+        $data = $this->serializer->serialize($order, 'json', ['groups' => ['getOrders']]);
+        
+        return new JsonResponse($data, \Symfony\Component\HttpFoundation\Response::HTTP_OK, [], true);
     }
 
     /**

@@ -39,17 +39,13 @@ class OrderRepository extends ServiceEntityRepository
         }
     }
 
-   public function findByUser($user = null): array
-   {
-       $queryBuilder = $this->createQueryBuilder('o')
-            ->orderBy('o.id', 'ASC');
-
-        if ($user !== null) {
-            $queryBuilder->andWhere('o.user = :user')
-                ->setParameter('user', $user);
-        }
+    public function findByUser($user): array
+    {
+        $queryBuilder = $this->createQueryBuilder('o')
+            ->orderBy('o.id', 'ASC')
+            ->andWhere('o.user = :user')
+            ->setParameter('user', $user);
 
         return $queryBuilder->getQuery()->getResult();
-   }
-
+    }
 }

@@ -21,6 +21,24 @@ class ResetPasswordRepository extends ServiceEntityRepository
         parent::__construct($registry, ResetPassword::class);
     }
 
+    public function save(ResetPassword $entity, bool $flush = false): void
+    {
+        $this->getEntityManager()->persist($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function remove(ResetPassword $entity, bool $flush = false): void
+    {
+        $this->getEntityManager()->remove($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
 //    /**
 //     * @return ResetPassword[] Returns an array of ResetPassword objects
 //     */
