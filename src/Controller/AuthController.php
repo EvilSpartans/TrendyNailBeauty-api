@@ -86,8 +86,8 @@ class AuthController extends AbstractController
 
         $this->repo->save($user, true);
 
-        $results = ['token' => $JWTManager->create($user), 'user' => $user];
-        $data = $this->serializer->serialize($results, 'json', ['groups' => ['createUser']]);
+        $results = ['token' => $JWTManager->create($user), 'data' => $user];
+        $data = $this->serializer->serialize($results, 'json', ['groups' => ['getUsers']]);
 
         return new JsonResponse($data, \Symfony\Component\HttpFoundation\Response::HTTP_CREATED, [], true);
     }
@@ -149,6 +149,7 @@ class AuthController extends AbstractController
     #[Route('/api/profile', methods: ['GET'])]
     public function profile(): \Symfony\Component\HttpFoundation\JsonResponse
     {
-        return $this->json($this->getUser());
+        $data = $this->serializer->serialize($this->getUser(), 'json', ['groups' => ['getUsers']]);
+        return new JsonResponse($data, \Symfony\Component\HttpFoundation\Response::HTTP_OK, [], true);
     }
 }
