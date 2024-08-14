@@ -34,6 +34,30 @@ class Order
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['getOrders', 'createOrder'])]
+    private ?string $email = null;
+
+    #[ORM\Column(length: 255)]
+    #[Groups(['getOrders', 'createOrder'])]
+    private ?string $phone = null;
+
+    #[ORM\Column(length: 255)]
+    #[Groups(['getOrders', 'createOrder'])]
+    private ?string $street = null;
+
+    #[ORM\Column(length: 255)]
+    #[Groups(['getOrders', 'createOrder'])]
+    private ?string $zipCode = null;
+
+    #[ORM\Column(length: 255)]
+    #[Groups(['getOrders', 'createOrder'])]
+    private ?string $city = null;
+
+    #[ORM\Column(length: 255)]
+    #[Groups(['getOrders', 'createOrder'])]
+    private ?string $country = null;
+
+    #[ORM\Column(length: 255)]
     #[Groups(['getOrders', 'updateOrder'])]
     private ?string $status = null;
 
@@ -106,6 +130,78 @@ class Order
     public function setCreatedAt(\DateTimeInterface $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): static
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(string $phone): static
+    {
+        $this->phone = $phone;
+
+        return $this;
+    }
+
+    public function getStreet(): ?string
+    {
+        return $this->street;
+    }
+
+    public function setStreet(string $street): static
+    {
+        $this->street = $street;
+
+        return $this;
+    }
+
+    public function getZipCode(): ?string
+    {
+        return $this->zipCode;
+    }
+
+    public function setZipCode(string $zipCode): static
+    {
+        $this->zipCode = $zipCode;
+
+        return $this;
+    }
+
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    public function setCity(string $city): static
+    {
+        $this->city = $city;
+
+        return $this;
+    }
+
+    public function getCountry(): ?string
+    {
+        return $this->country;
+    }
+
+    public function setCountry(string $country): static
+    {
+        $this->country = $country;
 
         return $this;
     }
