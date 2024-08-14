@@ -70,9 +70,11 @@ class Order
     private ?string $customerNotes = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['getOrders', 'createOrder'])]
     private ?string $shipping = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['getOrders', 'createOrder'])]
     private ?string $invoice = null;
 
     public function __construct()
