@@ -8,12 +8,16 @@ use App\Entity\ResetPassword;
 use App\Repository\UserRepository;
 use App\Repository\ResetPasswordRepository;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 
 class PasswordService
 {
     public function __construct(
         private UserPasswordHasherInterface $passwordEncoder,
+        private JWTTokenManagerInterface $JWTManager,
+        private NormalizerInterface $normalizer,
         private UserRepository $userRepository,
         private ResetPasswordRepository $repo,
         private MailerInterface $mailer
@@ -67,9 +71,10 @@ class PasswordService
         $user->setPassword($newPassword);
         $this->userRepository->save($user, true);
 
-        return new ResponseData([
-            "message" => "Mot de passe modifié"
-        ], 200);
+        $results = ['token' => $this->JWTManager->create($user), 'data' => $user];
+        $data = $this->normalizer->normalize($results, 'json', ['groups' => ['getUsers']]);
+
+        return new ResponseData($data, 200);
     }
 
     public function updatePassword(User $user, string $oldPassword, string $newPassword, string $confirmPassword): ResponseData

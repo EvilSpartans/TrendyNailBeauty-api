@@ -93,7 +93,7 @@ class ProductController extends AbstractController
     public function index(Request $request, ProductService $service): \Symfony\Component\HttpFoundation\JsonResponse
     {
         $responseData = $service->getFilteredProducts($request);
-        return new JsonResponse($responseData->getData(), \Symfony\Component\HttpFoundation\Response::HTTP_OK);
+        return new JsonResponse($responseData->getData(), $responseData->getStatus());
     }
 
     /**

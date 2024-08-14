@@ -53,13 +53,13 @@ class ProductService
             $products[] = $productData;
         }
 
-        $response = [
+        $data = [
             'products' => $products,
             'page' => $currentPage,
             'countPage' => $totalPages,
             'totalItems' => $totalItems,
         ];
 
-        return new ResponseData($response, \Symfony\Component\HttpFoundation\JsonResponse::HTTP_OK);
+        return new ResponseData($data, \Symfony\Component\HttpFoundation\JsonResponse::HTTP_OK);
     }
 }
