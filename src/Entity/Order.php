@@ -69,6 +69,12 @@ class Order
     #[Groups(['getOrders', 'createOrder'])]
     private ?string $customerNotes = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $shipping = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $invoice = null;
+
     public function __construct()
     {
         $this->products = new ArrayCollection();
@@ -238,6 +244,30 @@ class Order
     public function setCustomerNotes(?string $customerNotes): static
     {
         $this->customerNotes = $customerNotes;
+
+        return $this;
+    }
+
+    public function getShipping(): ?string
+    {
+        return $this->shipping;
+    }
+
+    public function setShipping(string $shipping): static
+    {
+        $this->shipping = $shipping;
+
+        return $this;
+    }
+
+    public function getInvoice(): ?string
+    {
+        return $this->invoice;
+    }
+
+    public function setInvoice(?string $invoice): static
+    {
+        $this->invoice = $invoice;
 
         return $this;
     }
