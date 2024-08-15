@@ -5,9 +5,11 @@ namespace App\Controller;
 use App\Entity\Contact;
 use OpenApi\Attributes as OA;
 use App\Repository\ContactRepository;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -19,6 +21,27 @@ class ContactController extends AbstractController
         private ValidatorInterface $validator,
         private ContactRepository $repo
     ) {
+    }
+
+    /**
+     * Fetch All
+     *
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    #[IsGranted('ROLE_ADMIN')]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Contact::class))
+        )
+    )]
+    #[Route('/api/categories', name: 'app_category_index', methods: ['GET'])]
+    public function index(): \Symfony\Component\HttpFoundation\JsonResponse
+    {
+        $data = $this->serializer->serialize($this->repo->findAll(), 'json', ['groups' => ['getContacts']]);
+        return new \Symfony\Component\HttpFoundation\JsonResponse($data, \Symfony\Component\HttpFoundation\Response::HTTP_OK, [], true);
     }
 
     /**
@@ -64,6 +87,22 @@ class ContactController extends AbstractController
 
         $this->repo->save($contact, true);
         return $this->json($contact, 201);
+    }
+
+    /**
+     * Delete Object
+     */
+    #[IsGranted('ROLE_ADMIN')]
+    #[OA\Response(
+        response: 204,
+        description: 'Successful deleted',
+    )]
+    #[Route('/api/contact/{id}', name: 'app_contact_delete', methods: ['DELETE'])]
+    public function delete(Contact $contact): \Symfony\Component\HttpFoundation\JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->repo->remove($contact, true);
+        return $this->json('Item deleted', \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
     }
 
 }

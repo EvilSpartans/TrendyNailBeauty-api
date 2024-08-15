@@ -6,6 +6,7 @@ use App\Entity\Category;
 use App\Entity\Contact;
 use App\Entity\Order;
 use App\Entity\Product;
+use App\Entity\Slider;
 use App\Entity\User;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -39,6 +40,7 @@ class DashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
+        yield MenuItem::linkToCrud('Images', 'fa-solid fa-images', Slider::class);
         yield MenuItem::linkToCrud('Utilisateurs', 'fa-solid fa-user', User::class);
         yield MenuItem::linkToCrud('Catégories', 'fa-solid fa-list', Category::class);
         yield MenuItem::linkToCrud('Articles', 'fa-brands fa-shopify', Product::class);

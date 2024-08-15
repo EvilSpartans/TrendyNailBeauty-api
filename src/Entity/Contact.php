@@ -13,18 +13,19 @@ class Contact
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['getContacts'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['createContact'])]
+    #[Groups(['getContacts', 'createContact'])]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['createContact'])]
+    #[Groups(['getContacts', 'createContact'])]
     private ?string $subject = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Groups(['createContact'])]
+    #[Groups(['getContacts', 'createContact'])]
     private ?string $content = null;
 
     public function getId(): ?int

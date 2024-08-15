@@ -12,16 +12,4 @@ class HomeController extends AbstractController
     {
         return $this->redirectToRoute('admin');
     }
-
-    #[Route('/api', name: 'app_api_index', methods: ['GET'])]
-    public function api(): \Symfony\Component\HttpFoundation\Response
-    {
-        return $this->redirectToRoute('app_doc_index');
-    }
-
-    #[Route('/api/doc', name: 'app_doc_index', methods: ['GET'])]
-    public function doc(): \Symfony\Component\HttpFoundation\Response
-    {
-        return $this->render('bundles/NelmioApiDocBundle/SwaggerUi/index.html.twig', []);
-    }
 }
