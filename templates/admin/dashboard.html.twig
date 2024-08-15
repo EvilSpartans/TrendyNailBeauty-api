@@ -1,0 +1,31 @@
+{% extends '@EasyAdmin/layout.html.twig' %}
+
+{% block configured_stylesheets %}
+	{{ encore_entry_link_tags('app') }}
+	<style></style>
+{% endblock %}
+
+{% block configured_javascripts %}
+	{{ encore_entry_script_tags('app') }}
+{% endblock %}
+
+{% block javascript_page_layout %}{% endblock %}
+
+{% block content %}
+
+	<section
+		class="main-content">
+
+		<!-- Titre -->
+		<section class="content-header">
+			<div class="content-header-title">
+				<h1 class="title">
+					<i class="far fa-arrow-alt-circle-right"></i>
+					&nbsp; Statistiques générales
+				</h1>
+				<hr>
+			</div>
+		</section>
+
+	</section>
+{% endblock %}
