@@ -37,7 +37,7 @@ class ContactController extends AbstractController
             items: new OA\Items(ref: new Model(type: Contact::class))
         )
     )]
-    #[Route('/api/categories', name: 'app_category_index', methods: ['GET'])]
+    #[Route('/api/contacts', name: 'api_contact_index', methods: ['GET'])]
     public function index(): \Symfony\Component\HttpFoundation\JsonResponse
     {
         $data = $this->serializer->serialize($this->repo->findAll(), 'json', ['groups' => ['getContacts']]);
